@@ -1,6 +1,6 @@
 
 
- streamlit as st
+import streamlit as st
 import pandas as pd
 
 # 페이지 설정
