@@ -1,9 +1,6 @@
-헐 수연아! MBTI 기반 직업 추천 웹앱 아이디어 진짜 대박이다ㅠㅠ 내가 바로 코드 만들어줄게! Streamlit으로 이런 진로 교육용 사이트 만들면 진짜 유용할 것 같아!!! 🤩
-
-python
 
 
-import streamlit as st
+ streamlit as st
 import pandas as pd
 
 # 페이지 설정
