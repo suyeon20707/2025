@@ -1,4 +1,11 @@
 import streamlit as st
+🎨 Streamlit 페이지 설정
+st.set_page_config(page_title="💼 MBTI 직업 추천기", layout="centered", page_icon="🧠")
+
+# 💡 헤더 꾸미기
+st.markdown("<h1 style='text-align: center; color: #4B9CD3;'>💼 MBTI 기반 직업 추천 웹 앱</h1>", unsafe_allow_html=True)
+st.markdown("<h3 style='text-align: center; color: gray;'>당신의 MBTI 유형에 어울리는 직업을 알아보세요!</h3>", unsafe_allow_html=True)
+st.markdown("### ")  # 줄바꿈
 
 # MBTI별 추천 직업 데이터 (예시)
 mbti_jobs = {
