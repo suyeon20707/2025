@@ -72,7 +72,7 @@ if menu == "개념 정리":
             # 체세포 분열 전체 과정 그림
             if "체세포 분열 (Mitosis)" in title:
                 st.image(
-                    "https://upload.wikimedia.org/wikipedia/commons/9/9c/Major_events_in_mitosis.svg",
+                    "https://ko.wikipedia.org/wiki/%ED%8C%8C%EC%9D%BC:Major_events_in_mitosis.svg"
                     caption="체세포 분열 과정",
                     use_container_width=True
                 )
