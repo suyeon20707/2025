@@ -2,9 +2,9 @@ import streamlit as st
 import random
 
 # ----------------------
-# 🌌 배경 설정 (DNA 이미지)
+# 🌌 배경 설정 (DNA 이미지 + 투명 박스 + 초록 사이드바)
 # ----------------------
-page_bg_img = """
+page_bg = """
 <style>
 .stApp {
     background-image: url("https://cdn.pixabay.com/photo/2016/11/19/14/00/dna-1838696_1280.jpg");
@@ -12,9 +12,26 @@ page_bg_img = """
     background-position: center;
     background-attachment: fixed;
 }
+
+/* 메인 컨텐츠 영역 반투명 박스 */
+.block-container {
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 2rem;
+    border-radius: 15px;
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+}
+
+/* 사이드바 초록색 그라데이션 */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #a5d6a7, #81c784, #66bb6a);
+    color: white;
+}
+[data-testid="stSidebar"] * {
+    color: white !important;
+}
 </style>
 """
-st.markdown(page_bg_img, unsafe_allow_html=True)
+st.markdown(page_bg, unsafe_allow_html=True)
 
 # ----------------------
 # 개념 정리 데이터
@@ -123,4 +140,3 @@ elif menu == "퀴즈 풀기":
                 st.error(f"❌ 틀렸습니다. 정답은 👉 {quiz['answer']}")
 
     st.info("👉 퀴즈는 매번 새로고침하면 다른 문제가 랜덤으로 나옵니다.")
- 
