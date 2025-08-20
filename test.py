@@ -2,7 +2,7 @@ import streamlit as st
 import random
 
 # ----------------------
-# 🌌 배경 설정 (DNA 이미지 + 투명 박스 + 초록 사이드바)
+# 🌌 배경 + CSS 스타일
 # ----------------------
 page_bg = """
 <style>
@@ -13,21 +13,59 @@ page_bg = """
     background-attachment: fixed;
 }
 
-/* 메인 컨텐츠 영역 반투명 박스 */
-.block-container {
-    background-color: rgba(255, 255, 255, 0.85);
-    padding: 2rem;
-    border-radius: 15px;
-    box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+/* 오버레이(배경 위 반투명 그라데이션) */
+.stApp::before {
+    content: "";
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: linear-gradient(120deg, rgba(0,150,136,0.5), rgba(156,39,176,0.5));
+    z-index: -1;
 }
 
-/* 사이드바 초록색 그라데이션 */
+/* 메인 컨텐츠 카드 스타일 */
+.block-container {
+    background-color: rgba(255, 255, 255, 0.92);
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0px 8px 25px rgba(0,0,0,0.25);
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* 사이드바 초록빛 그라데이션 */
 [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #a5d6a7, #81c784, #66bb6a);
+    background: linear-gradient(180deg, #43a047, #66bb6a, #a5d6a7);
     color: white;
+    font-weight: bold;
 }
 [data-testid="stSidebar"] * {
     color: white !important;
+}
+
+/* 제목 꾸미기 */
+h1, h2, h3 {
+    text-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+}
+
+/* 버튼 스타일 */
+.stButton>button {
+    background: linear-gradient(90deg, #00c853, #64dd17);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    transition: 0.3s;
+}
+.stButton>button:hover {
+    background: linear-gradient(90deg, #64dd17, #00c853);
+    transform: scale(1.05);
+}
+
+/* 등장 애니메이션 */
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(20px);}
+    to {opacity: 1; transform: translateY(0);}
 }
 </style>
 """
@@ -46,7 +84,7 @@ concepts = {
     "체세포 분열 단계별 정리": """
 1. **간기**: 분열기 이전에 유전 물질을 복제하고, 세포질 내의 여러 물질을 합성하는 시기이다.  
 2. **전기**: 염색질이 염색사로 되며, 염색사는 점차 굵어져서 염색체로 된다. 핵막과 인이 서서히 사라지며, 세포 양극에서 방추사가 나타나는 시기이다.  
-3. **중기**: 염색체가 세포의 중앙에 나열되고, 방추사가 염색체에 부착되는 시기이다. 시간 상으로는 가장 짧지만, 세포가 중앙에 나열되기 때문에 염색체의 수와 모양을 관찰하기에 가장 쉽다.  
+3. **중기**: 염색체가 세포의 중앙에 나열되고, 방추사가 염색체에 부착되는 시기이다.  
 4. **후기**: 방추사에 의해 염색 분체가 양극으로 끌려가는 시기이다.  
 5. **말기**: 새로운 핵막과 인이 생겨 두 개의 핵이 뚜렷하게 관찰되고, 방추사가 없어지는 시기이다.  
 6. **세포질 분열**: 세포질이 둘로 나뉘어 각각의 딸세포가 만들어진다.  
@@ -128,15 +166,4 @@ elif menu == "퀴즈 풀기":
 
     selected_quizzes = random.sample(quiz_data, k=3)
     score = 0
-    for i, quiz in enumerate(selected_quizzes):
-        st.subheader(f"Q{i+1}. {quiz['question']}")
-        user_answer = st.radio("정답을 선택하세요:", quiz["options"], key=f"q{i}")
-
-        if st.button(f"정답 확인 {i+1}", key=f"btn{i}"):
-            if user_answer == quiz["answer"]:
-                st.success("✅ 정답입니다! 🎉")
-                score += 1
-            else:
-                st.error(f"❌ 틀렸습니다. 정답은 👉 {quiz['answer']}")
-
-    st.info("👉 퀴즈는 매번 새로고침하면 다른 문제가 랜덤으로 나옵니다.")
+    for
