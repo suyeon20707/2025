@@ -68,13 +68,22 @@ if menu == "개념 정리":
     for title, desc in concepts.items():
         with st.expander(title):
             st.write(desc)
-            # 관련 그림 보여주기 (직접 준비한 이미지 파일 사용)
-            if "체세포 분열" in title and "단계별" not in title:
-                st.image("images/mitosis.png", caption="체세포 분열 전체 과정", use_container_width=True)
-            elif "단계별" in title:
-                st.image("images/mitosis_stages.png", caption="체세포 분열 단계별 그림", use_container_width=True)
+
+            # 체세포 분열 전체 과정 그림
+            if "체세포 분열 (Mitosis)" in title:
+                st.image(
+                    "https://upload.wikimedia.org/wikipedia/commons/9/9c/Major_events_in_mitosis.svg",
+                    caption="체세포 분열 과정",
+                    use_container_width=True
+                )
+
+            # 감수 분열 과정 그림
             elif "감수 분열" in title:
-                st.image("images/meiosis.png", caption="감수 분열 과정", use_container_width=True)
+                st.image(
+                    "https://upload.wikimedia.org/wikipedia/commons/8/8c/Meiosis_diagram_en.svg",
+                    caption="감수 분열 과정",
+                    use_container_width=True
+                )
 
 # ----------------------
 # 퀴즈 페이지
@@ -96,4 +105,3 @@ elif menu == "퀴즈 풀기":
                 st.error(f"❌ 틀렸습니다. 정답은 👉 {quiz['answer']}")
 
     st.info("👉 퀴즈는 매번 새로고침하면 다른 문제가 랜덤으로 나옵니다.")
-
