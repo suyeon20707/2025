@@ -65,25 +65,28 @@ menu = st.sidebar.radio("메뉴 선택", ["개념 정리", "퀴즈 풀기"])
 # ----------------------
 if menu == "개념 정리":
     st.header("📘 체세포 분열과 감수분열 개념 정리")
-    for title, desc in concepts.items():
-        with st.expander(title):
-            st.write(desc)
 
-            # 체세포 분열 전체 과정 그림
-            if "체세포 분열 (Mitosis)" in title:
-                st.image(
-                    "https://ko.wikipedia.org/wiki/%ED%8C%8C%EC%9D%BC:Major_events_in_mitosis.svg"
-                    caption="체세포 분열 과정",
-                    use_container_width=True
-                )
+    with st.expander("체세포 분열 (Mitosis)"):
+        st.write(concepts["체세포 분열 (Mitosis)"])
+        st.image(
+            "https://upload.wikimedia.org/wikipedia/commons/9/9c/Major_events_in_mitosis.svg",
+            caption="체세포 분열 과정",
+            use_container_width=True
+        )
 
-            # 감수 분열 과정 그림
-            elif "감수 분열" in title:
-                st.image(
-                    "https://upload.wikimedia.org/wikipedia/commons/8/8c/Meiosis_diagram_en.svg",
-                    caption="감수 분열 과정",
-                    use_container_width=True
-                )
+    with st.expander("체세포 분열 단계별 정리"):
+        st.write(concepts["체세포 분열 단계별 정리"])
+
+    with st.expander("감수 분열 (Meiosis)"):
+        st.write(concepts["감수 분열 (Meiosis)"])
+        st.image(
+            "https://upload.wikimedia.org/wikipedia/commons/8/8c/Meiosis_diagram_en.svg",
+            caption="감수 분열 과정",
+            use_container_width=True
+        )
+
+    with st.expander("체세포 분열 vs 감수 분열 비교"):
+        st.write(concepts["체세포 분열 vs 감수 분열 비교"])
 
 # ----------------------
 # 퀴즈 페이지
