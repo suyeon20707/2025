@@ -2,6 +2,21 @@ import streamlit as st
 import random
 
 # ----------------------
+# 🌌 배경 설정 (DNA 이미지)
+# ----------------------
+page_bg_img = """
+<style>
+.stApp {
+    background-image: url("https://cdn.pixabay.com/photo/2016/11/19/14/00/dna-1838696_1280.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
+</style>
+"""
+st.markdown(page_bg_img, unsafe_allow_html=True)
+
+# ----------------------
 # 개념 정리 데이터
 # ----------------------
 concepts = {
@@ -66,27 +81,27 @@ menu = st.sidebar.radio("메뉴 선택", ["개념 정리", "퀴즈 풀기"])
 if menu == "개념 정리":
     st.header("📘 체세포 분열과 감수분열 개념 정리")
 
-    with st.expander("체세포 분열 (Mitosis)"):
-        st.write(concepts["체세포 분열 (Mitosis)"])
-        st.image(
-            "https://upload.wikimedia.org/wikipedia/commons/9/9c/Major_events_in_mitosis.svg",
-            caption="체세포 분열 과정",
-            use_container_width=True
-        )
+    st.subheader("체세포 분열 (Mitosis)")
+    st.write(concepts["체세포 분열 (Mitosis)"])
+    st.image(
+        "https://upload.wikimedia.org/wikipedia/commons/9/9c/Major_events_in_mitosis.svg",
+        caption="체세포 분열 과정",
+        use_container_width=True
+    )
 
-    with st.expander("체세포 분열 단계별 정리"):
-        st.write(concepts["체세포 분열 단계별 정리"])
+    st.subheader("체세포 분열 단계별 정리")
+    st.write(concepts["체세포 분열 단계별 정리"])
 
-    with st.expander("감수 분열 (Meiosis)"):
-        st.write(concepts["감수 분열 (Meiosis)"])
-        st.image(
-            "https://upload.wikimedia.org/wikipedia/commons/8/8c/Meiosis_diagram_en.svg",
-            caption="감수 분열 과정",
-            use_container_width=True
-        )
+    st.subheader("감수 분열 (Meiosis)")
+    st.write(concepts["감수 분열 (Meiosis)"])
+    st.image(
+        "https://upload.wikimedia.org/wikipedia/commons/8/8c/Meiosis_diagram_en.svg",
+        caption="감수 분열 과정",
+        use_container_width=True
+    )
 
-    with st.expander("체세포 분열 vs 감수 분열 비교"):
-        st.write(concepts["체세포 분열 vs 감수 분열 비교"])
+    st.subheader("체세포 분열 vs 감수 분열 비교")
+    st.write(concepts["체세포 분열 vs 감수 분열 비교"])
 
 # ----------------------
 # 퀴즈 페이지
@@ -108,3 +123,4 @@ elif menu == "퀴즈 풀기":
                 st.error(f"❌ 틀렸습니다. 정답은 👉 {quiz['answer']}")
 
     st.info("👉 퀴즈는 매번 새로고침하면 다른 문제가 랜덤으로 나옵니다.")
+ 
