@@ -2,56 +2,50 @@ import streamlit as st
 import random
 
 # ----------------------
-# 🌌 배경 및 스타일 업그레이드
+# 🌌 배경 꾸미기
 # ----------------------
-custom_css = """
+page_bg = """
 <style>
-/* 배경에 은은한 움직이는 그라디언트 효과 */
 .stApp {
-    background: linear-gradient(-45deg, #a8edea, #fed6e3, #d4fc79, #96e6a1);
-    background-size: 400% 400%;
-    animation: gradientBG 12s ease infinite;
-}
-@keyframes gradientBG {
-    0% {background-position: 0% 50%;}
-    50% {background-position: 100% 50%;}
-    100% {background-position: 0% 50%;}
+    background-image: url("https://cdn.pixabay.com/photo/2016/11/19/14/00/dna-1838696_1280.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    color: #1b1b1b;
 }
 
-/* 메인 컨텐츠 카드 */
+/* 메인 컨테이너 */
 .block-container {
-    background: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.9);
     padding: 2rem;
     border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
-    backdrop-filter: blur(8px);
-    border: 2px solid rgba(255,255,255,0.3);
+    box-shadow: 0px 6px 20px rgba(0,0,0,0.3);
 }
 
-/* 버튼 화려하게 */
-.stButton button {
-    font-size: 18px;
-    border-radius: 12px;
-    padding: 0.6rem 1.2rem;
-    font-weight: bold;
-    transition: all 0.3s ease-in-out;
-}
-.stButton button:hover {
-    transform: scale(1.07);
-    box-shadow: 0 0 15px rgba(0,255,100,0.6);
-}
-
-/* 사이드바 스타일 */
+/* 사이드바 */
 [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #4caf50, #2e7d32);
+    background: linear-gradient(180deg, #a5d6a7, #81c784, #4caf50);
     color: white;
 }
 [data-testid="stSidebar"] * {
     color: white !important;
 }
+
+/* 버튼 스타일 */
+div.stButton > button {
+    background: linear-gradient(90deg, #66bb6a, #43a047);
+    color: white;
+    border-radius: 12px;
+    padding: 0.6rem 1.2rem;
+    font-weight: bold;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.2);
+}
+div.stButton > button:hover {
+    background: linear-gradient(90deg, #43a047, #2e7d32);
+}
 </style>
 """
-st.markdown(custom_css, unsafe_allow_html=True)
+st.markdown(page_bg, unsafe_allow_html=True)
 
 # ----------------------
 # 퀴즈 데이터
@@ -92,82 +86,78 @@ if "current_q" not in st.session_state:
 if "score" not in st.session_state:
     st.session_state.score = 0
 if "stage" not in st.session_state:
-    st.session_state.stage = 0
-if "last_answer" not in st.session_state:
-    st.session_state.last_answer = None
+    st.session_state.stage = 0  # 0: 문제, 1: 정오답 피드백
 
 # ----------------------
-# 제목
+# 앱 UI
 # ----------------------
-st.title("🧬 생명과학1 - 체세포 분열 & 감수분열 퀴즈")
+st.title("🧬 생명과학1 - 유전 학습 퀴즈 앱")
 
-# ----------------------
-# 문제 수 선택 & 퀴즈 시작
-# ----------------------
+# 퀴즈 시작 전
 if not st.session_state.quiz_list:
     num_q = st.slider("풀 문제 개수를 선택하세요:", 1, 30, 5)
     if st.button("퀴즈 시작! 🚀"):
-        st.session_state.quiz_list = random.sample(quiz_data * 10, num_q)  # 데이터 확장
+        st.session_state.quiz_list = random.choices(quiz_data, k=num_q)
         st.session_state.current_q = 0
         st.session_state.score = 0
         st.session_state.stage = 0
         st.rerun()
 
-# ----------------------
-# 퀴즈 진행
-# ----------------------
+# 퀴즈 진행 중
 else:
-    current = st.session_state.current_q
-    quiz = st.session_state.quiz_list[current]
+    total = len(st.session_state.quiz_list)
+    q_idx = st.session_state.current_q
+    quiz = st.session_state.quiz_list[q_idx]
 
-    # 사이드바 진행률
-    progress = (current) / len(st.session_state.quiz_list)
-    st.sidebar.progress(progress)
-    st.sidebar.write(f"📊 진행률: {int(progress*100)}%")
-    st.sidebar.write(f"✅ 점수: {st.session_state.score}")
+    st.progress((q_idx) / total)
+    st.markdown(f"### 문제 {q_idx+1} / {total}")
+    st.write(quiz["question"])
 
-    # 문제 출제
+    # ----------------------
+    # stage = 0 → 문제 풀이 화면
+    # ----------------------
     if st.session_state.stage == 0:
-        st.subheader(f"Q{current+1}. {quiz['question']}")
-
         if quiz["type"] == "mcq":
-            user_answer = st.radio("정답을 선택하세요:", quiz["options"], key=f"q{current}")
-        else:  # 순서 배열 문제
-            user_answer = st.multiselect("순서를 올바르게 배열하세요:", quiz["options"], key=f"q{current}")
-
-        if st.button("정답 제출"):
-            st.session_state.last_answer = user_answer
-            if quiz["type"] == "mcq":
+            user_answer = st.radio("정답을 고르세요:", quiz["options"], key=f"q{q_idx}")
+            if st.button("제출"):
                 if user_answer == quiz["answer"]:
                     st.session_state.score += 1
-            else:
-                if user_answer == quiz["answer"]:
-                    st.session_state.score += 1
-            st.session_state.stage = 1
-            st.rerun()
+                    st.session_state.stage = 1
+                    st.session_state.feedback = "✅ 정답입니다! 🎉"
+                else:
+                    st.session_state.stage = 1
+                    st.session_state.feedback = f"❌ 틀렸습니다. 정답은 👉 {quiz['answer']}"
+                st.rerun()
 
-    # 피드백 화면
+        elif quiz["type"] == "order":
+            user_order = st.multiselect("순서대로 나열하세요:", quiz["options"], key=f"q{q_idx}")
+            if st.button("제출"):
+                if user_order == quiz["answer"]:
+                    st.session_state.score += 1
+                    st.session_state.stage = 1
+                    st.session_state.feedback = "✅ 정답입니다! 🎉"
+                else:
+                    st.session_state.stage = 1
+                    st.session_state.feedback = f"❌ 틀렸습니다. 정답은 👉 {' → '.join(quiz['answer'])}"
+                st.rerun()
+
+    # ----------------------
+    # stage = 1 → 정오답 피드백 화면
+    # ----------------------
     elif st.session_state.stage == 1:
-        st.subheader(f"Q{current+1}. {quiz['question']}")
+        st.subheader("결과")
+        st.info(st.session_state.feedback)
 
-        if quiz["type"] == "mcq":
-            if st.session_state.last_answer == quiz["answer"]:
-                st.success("✅ 정답입니다! 🎉")
-            else:
-                st.error(f"❌ 틀렸습니다. 정답은 👉 {quiz['answer']}")
-        else:
-            if st.session_state.last_answer == quiz["answer"]:
-                st.success("✅ 올바른 순서입니다! 🎉")
-            else:
-                st.error(f"❌ 틀렸습니다.\n\n정답은 👉 {' → '.join(quiz['answer'])}")
-
-        if current < len(st.session_state.quiz_list) - 1:
-            if st.button("➡️ 다음 문제로 이동"):
+        if q_idx + 1 < total:
+            if st.button("👉 다음 문제로"):
                 st.session_state.current_q += 1
                 st.session_state.stage = 0
                 st.rerun()
         else:
-            st.success(f"🎉 모든 문제를 풀었습니다! 최종 점수: {st.session_state.score}/{len(st.session_state.quiz_list)}")
-            if st.button("🔄 다시 시작하기"):
+            st.success(f"🎉 퀴즈 완료! 점수: {st.session_state.score} / {total}")
+            if st.button("다시 시작하기"):
                 st.session_state.quiz_list = []
+                st.session_state.current_q = 0
+                st.session_state.score = 0
+                st.session_state.stage = 0
                 st.rerun()
