@@ -2,7 +2,7 @@ import streamlit as st
 import random
 
 # ----------------------
-# 🌌 배경 설정 (DNA 이미지 + 투명 박스 + 초록 사이드바)
+# 🌌 배경 설정
 # ----------------------
 page_bg = """
 <style>
@@ -12,16 +12,12 @@ page_bg = """
     background-position: center;
     background-attachment: fixed;
 }
-
-/* 메인 컨텐츠 영역 반투명 박스 */
 .block-container {
     background-color: rgba(255, 255, 255, 0.85);
     padding: 2rem;
     border-radius: 15px;
     box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
 }
-
-/* 사이드바 초록색 그라데이션 */
 [data-testid="stSidebar"] {
     background: linear-gradient(180deg, #a5d6a7, #81c784, #66bb6a);
     color: white;
@@ -32,41 +28,6 @@ page_bg = """
 </style>
 """
 st.markdown(page_bg, unsafe_allow_html=True)
-
-# ----------------------
-# 개념 정리 데이터
-# ----------------------
-concepts = {
-    "체세포 분열 (Mitosis)": """
-- 목적: 성장, 손상된 세포 회복, 무성생식
-- 과정: 간기 → 전기 → 중기 → 후기 → 말기 → 세포질 분열
-- 결과: 2개의 딸세포 (2n → 2n)
-- 유전적 다양성: 없음
-    """,
-    "체세포 분열 단계별 정리": """
-1. **간기**: 분열기 이전에 유전 물질을 복제하고, 세포질 내의 여러 물질을 합성하는 시기이다.  
-2. **전기**: 염색질이 염색사로 되며, 염색사는 점차 굵어져서 염색체로 된다. 핵막과 인이 서서히 사라지며, 세포 양극에서 방추사가 나타나는 시기이다.  
-3. **중기**: 염색체가 세포의 중앙에 나열되고, 방추사가 염색체에 부착되는 시기이다. 시간 상으로는 가장 짧지만, 세포가 중앙에 나열되기 때문에 염색체의 수와 모양을 관찰하기에 가장 쉽다.  
-4. **후기**: 방추사에 의해 염색 분체가 양극으로 끌려가는 시기이다.  
-5. **말기**: 새로운 핵막과 인이 생겨 두 개의 핵이 뚜렷하게 관찰되고, 방추사가 없어지는 시기이다.  
-6. **세포질 분열**: 세포질이 둘로 나뉘어 각각의 딸세포가 만들어진다.  
-    """,
-    "감수 분열 (Meiosis)": """
-- 목적: 배우자(난자, 정자) 형성
-- 과정: 1차 감수분열 → 2차 감수분열
-- 결과: 4개의 딸세포 (2n → n)
-- 유전적 다양성: 있음 (교차, 독립적 분리)
-    """,
-    "체세포 분열 vs 감수 분열 비교": """
-| 구분 | 체세포 분열 | 감수 분열 |
-|------|-------------|-----------|
-| 목적 | 성장/재생 | 생식세포 형성 |
-| 분열 횟수 | 1회 | 2회 |
-| 딸세포 수 | 2개 | 4개 |
-| 염색체 수 | 동일 (2n) | 절반 (n) |
-| 유전적 다양성 | 없음 | 있음 |
-    """
-}
 
 # ----------------------
 # 퀴즈 데이터
@@ -85,59 +46,38 @@ quiz_data = [
 ]
 
 # ----------------------
-# Streamlit UI
+# 세션 상태 초기화
 # ----------------------
-st.set_page_config(page_title="생명과학1 - 유전 학습 앱", layout="wide")
-st.title("🧬 생명과학1 - 체세포 분열 & 감수분열 학습 앱")
+if "questions" not in st.session_state:
+    st.session_state.questions = random.sample(quiz_data, k=3)
+    st.session_state.current = 0
+    st.session_state.score = 0
+    st.session_state.stage = 0   # 0: 문제 화면, 1: 피드백 화면
+    st.session_state.last_answer = None
 
-menu = st.sidebar.radio("메뉴 선택", ["개념 정리", "퀴즈 풀기"])
-
-# ----------------------
-# 개념 정리 페이지
-# ----------------------
-if menu == "개념 정리":
-    st.header("📘 체세포 분열과 감수분열 개념 정리")
-
-    st.subheader("체세포 분열 (Mitosis)")
-    st.write(concepts["체세포 분열 (Mitosis)"])
-    st.image(
-        "https://upload.wikimedia.org/wikipedia/commons/9/9c/Major_events_in_mitosis.svg",
-        caption="체세포 분열 과정",
-        use_container_width=True
-    )
-
-    st.subheader("체세포 분열 단계별 정리")
-    st.write(concepts["체세포 분열 단계별 정리"])
-
-    st.subheader("감수 분열 (Meiosis)")
-    st.write(concepts["감수 분열 (Meiosis)"])
-    st.image(
-        "https://upload.wikimedia.org/wikipedia/commons/8/8c/Meiosis_diagram_en.svg",
-        caption="감수 분열 과정",
-        use_container_width=True
-    )
-
-    st.subheader("체세포 분열 vs 감수 분열 비교")
-    st.write(concepts["체세포 분열 vs 감수 분열 비교"])
+st.set_page_config(page_title="생명과학1 - 유전 퀴즈 앱", layout="wide")
+st.title("📝 생명과학1 - 유전 퀴즈 앱")
 
 # ----------------------
-# 퀴즈 페이지
+# 문제 풀이 흐름
 # ----------------------
-elif menu == "퀴즈 풀기":
-    st.header("📝 퀴즈 도전!")
+if st.session_state.current < len(st.session_state.questions):
+    quiz = st.session_state.questions[st.session_state.current]
 
-    selected_quizzes = random.sample(quiz_data, k=3)
-    score = 0
-    for i, quiz in enumerate(selected_quizzes):
-        st.subheader(f"Q{i+1}. {quiz['question']}")
-        user_answer = st.radio("정답을 선택하세요:", quiz["options"], key=f"q{i}")
-
-        if st.button(f"정답 확인 {i+1}", key=f"btn{i}"):
+    # 문제 화면
+    if st.session_state.stage == 0:
+        st.subheader(f"Q{st.session_state.current+1}. {quiz['question']}")
+        user_answer = st.radio("정답을 선택하세요:", quiz["options"], key=f"q{st.session_state.current}")
+        if st.button("정답 제출"):
+            st.session_state.last_answer = user_answer
             if user_answer == quiz["answer"]:
-                st.success("✅ 정답입니다! 🎉")
-                score += 1
-            else:
-                st.error(f"❌ 틀렸습니다. 정답은 👉 {quiz['answer']}")
+                st.session_state.score += 1
+            st.session_state.stage = 1
+            st.experimental_rerun()
 
-    st.info("👉 퀴즈는 매번 새로고침하면 다른 문제가 랜덤으로 나옵니다.")
+    # 피드백 화면
+    elif st.session_state.stage == 1:
+        st.subheader(f"Q{st.session_state.current+1}. {quiz['question']}")
+        if st.session_state.last_answer == quiz["answer"]:
+            st.success("✅ 정답입니다! 🎉")
 
