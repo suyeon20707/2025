@@ -73,11 +73,23 @@ if st.session_state.current < len(st.session_state.questions):
             if user_answer == quiz["answer"]:
                 st.session_state.score += 1
             st.session_state.stage = 1
-            st.experimental_rerun()
+            st.rerun()   # ✅ 최신 버전은 이 함수 사용
 
     # 피드백 화면
     elif st.session_state.stage == 1:
         st.subheader(f"Q{st.session_state.current+1}. {quiz['question']}")
         if st.session_state.last_answer == quiz["answer"]:
             st.success("✅ 정답입니다! 🎉")
+        else:
+            st.error(f"❌ 틀렸습니다. 정답은 👉 {quiz['answer']}")
 
+        if st.session_state.current < len(st.session_state.questions) - 1:
+            if st.button("➡️ 다음 문제로 이동"):
+                st.session_state.current += 1
+                st.session_state.stage = 0
+                st.rerun()   # ✅ 여기서도 교체
+        else:
+            st.success(f"🎉 모든 문제를 풀었습니다! 최종 점수: {st.session_state.score} / {len(st.session_state.questions)}")
+
+else:
+    st.success(f"🎉 모든 문제를 풀었습니다! 최종 점수: {st.session_state.score} / {len(st.session_state.questions)}")
