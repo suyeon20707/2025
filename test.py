@@ -48,8 +48,9 @@ quiz_data = [
 # ----------------------
 # 세션 상태 초기화
 # ----------------------
-if "questions" not in st.session_state:
-    st.session_state.questions = random.sample(quiz_data, k=3)
+if "started" not in st.session_state:
+    st.session_state.started = False
+    st.session_state.questions = []
     st.session_state.current = 0
     st.session_state.score = 0
     st.session_state.stage = 0   # 0: 문제 화면, 1: 피드백 화면
@@ -59,37 +60,56 @@ st.set_page_config(page_title="생명과학1 - 유전 퀴즈 앱", layout="wide"
 st.title("📝 생명과학1 - 유전 퀴즈 앱")
 
 # ----------------------
-# 문제 풀이 흐름
+# 시작 화면 (문제 수 선택)
 # ----------------------
-if st.session_state.current < len(st.session_state.questions):
-    quiz = st.session_state.questions[st.session_state.current]
+if not st.session_state.started:
+    st.subheader("🎯 문제 수를 선택하세요")
+    num_q = st.slider("문제 개수", 1, len(quiz_data), 3)
 
-    # 문제 화면
-    if st.session_state.stage == 0:
-        st.subheader(f"Q{st.session_state.current+1}. {quiz['question']}")
-        user_answer = st.radio("정답을 선택하세요:", quiz["options"], key=f"q{st.session_state.current}")
-        if st.button("정답 제출"):
-            st.session_state.last_answer = user_answer
-            if user_answer == quiz["answer"]:
-                st.session_state.score += 1
-            st.session_state.stage = 1
-            st.rerun()   # ✅ 최신 버전은 이 함수 사용
+    if st.button("퀴즈 시작"):
+        st.session_state.questions = random.sample(quiz_data, k=num_q)
+        st.session_state.started = True
+        st.session_state.current = 0
+        st.session_state.score = 0
+        st.session_state.stage = 0
+        st.rerun()
 
-    # 피드백 화면
-    elif st.session_state.stage == 1:
-        st.subheader(f"Q{st.session_state.current+1}. {quiz['question']}")
-        if st.session_state.last_answer == quiz["answer"]:
-            st.success("✅ 정답입니다! 🎉")
-        else:
-            st.error(f"❌ 틀렸습니다. 정답은 👉 {quiz['answer']}")
-
-        if st.session_state.current < len(st.session_state.questions) - 1:
-            if st.button("➡️ 다음 문제로 이동"):
-                st.session_state.current += 1
-                st.session_state.stage = 0
-                st.rerun()   # ✅ 여기서도 교체
-        else:
-            st.success(f"🎉 모든 문제를 풀었습니다! 최종 점수: {st.session_state.score} / {len(st.session_state.questions)}")
-
+# ----------------------
+# 퀴즈 진행 화면
+# ----------------------
 else:
-    st.success(f"🎉 모든 문제를 풀었습니다! 최종 점수: {st.session_state.score} / {len(st.session_state.questions)}")
+    if st.session_state.current < len(st.session_state.questions):
+        quiz = st.session_state.questions[st.session_state.current]
+
+        # 문제 화면
+        if st.session_state.stage == 0:
+            st.subheader(f"Q{st.session_state.current+1}. {quiz['question']}")
+            user_answer = st.radio("정답을 선택하세요:", quiz["options"], key=f"q{st.session_state.current}")
+            if st.button("정답 제출"):
+                st.session_state.last_answer = user_answer
+                if user_answer == quiz["answer"]:
+                    st.session_state.score += 1
+                st.session_state.stage = 1
+                st.rerun()
+
+        # 피드백 화면
+        elif st.session_state.stage == 1:
+            st.subheader(f"Q{st.session_state.current+1}. {quiz['question']}")
+            if st.session_state.last_answer == quiz["answer"]:
+                st.success("✅ 정답입니다! 🎉")
+            else:
+                st.error(f"❌ 틀렸습니다. 정답은 👉 {quiz['answer']}")
+
+            if st.session_state.current < len(st.session_state.questions) - 1:
+                if st.button("➡️ 다음 문제로 이동"):
+                    st.session_state.current += 1
+                    st.session_state.stage = 0
+                    st.rerun()
+            else:
+                st.success(f"🎉 모든 문제를 풀었습니다! 최종 점수: {st.session_state.score} / {len(st.session_state.questions)}")
+                if st.button("🔄 다시 시작하기"):
+                    for k in list(st.session_state.keys()):
+                        del st.session_state[k]
+                    st.rerun()
+    else:
+        st.success(f"🎉 모든 문제를 풀었습니다! 최종 점수: {st.session_state.score} / {len(st.session_state.questions)}")
