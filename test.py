@@ -2,7 +2,7 @@ import streamlit as st
 import random
 
 # ----------------------
-# 🌌 배경 꾸미기https://github.com/suyeon20707/2025/blob/main/test.py
+# 🌌 배경 꾸미기
 # ----------------------
 page_bg = """
 <style>
@@ -45,7 +45,7 @@ div.stButton > button:hover {
 st.markdown(page_bg, unsafe_allow_html=True)
 
 # ----------------------
-# 퀴즈 데이터 (부족 개념 포함)
+# 퀴즈 데이터
 # ----------------------
 quiz_data = [
     {"type": "mcq", "question": "🧬 체세포 분열의 결과, 하나의 모세포(2n)에서 몇 개의 딸세포가 만들어질까?",
@@ -58,7 +58,7 @@ quiz_data = [
      "options": ["분리", "교차", "복제", "독립 분리"], "answer": "교차", "concept": "교차의 의미"},
     {"type": "mcq", "question": "💡 체세포 분열의 최종 결과, 모세포와 딸세포의 염색체 수 관계는?",
      "options": ["동일하다", "절반이다", "배로 늘어난다", "불규칙하다"], "answer": "동일하다", "concept": "체세포 분열의 염색체 유지"},
-    {"type": "order", "question": "📖 다음은 감수분열 과정에서 일어나는 일이다. 올바른 순서대로 배열하시오.",
+    {"type": "order", "question": "📖 다음은 감수분열 과정에서 일어나는 일이다. 빈칸에 블록을 순서대로 넣으세요.",
      "options": [
          "상동염색체가 짝을 이루어 배열됨",
          "염색분체가 분리되어 양극으로 이동",
@@ -87,6 +87,8 @@ if "stage" not in st.session_state:
     st.session_state.stage = 0
 if "wrong_concepts" not in st.session_state:
     st.session_state.wrong_concepts = []
+if "user_order" not in st.session_state:
+    st.session_state.user_order = []
 
 # ----------------------
 # 앱 UI
@@ -95,13 +97,14 @@ st.title("🧬 생명과학1 - 유전 퀴즈 대모험 🌱")
 
 # 퀴즈 시작 전
 if not st.session_state.quiz_list:
-    num_q = st.slider("📝 풀 문제 개수를 선택하세요:", 1, len(quiz_data), 5)
+    num_q = st.slider("📝 풀 문제 개수를 선택하세요:", 1, 30, 5)  # ✅ 30개까지 선택 가능
     if st.button("🚀 퀴즈 시작!"):
-        st.session_state.quiz_list = random.sample(quiz_data, k=num_q)  # 중복 없는 선택
+        st.session_state.quiz_list = random.sample(quiz_data, k=min(num_q, len(quiz_data)))  # 중복 없음
         st.session_state.current_q = 0
         st.session_state.score = 0
         st.session_state.stage = 0
         st.session_state.wrong_concepts = []
+        st.session_state.user_order = []
         st.rerun()
 
 # 퀴즈 진행 중
@@ -131,9 +134,18 @@ else:
                 st.rerun()
 
         elif quiz["type"] == "order":
-            user_order = st.multiselect("👉 순서대로 나열하세요:", quiz["options"], key=f"q{q_idx}")
+            # 빈칸 + 블록 형태 구현
+            if not st.session_state.user_order:
+                st.session_state.user_order = [""] * len(quiz["options"])
+
+            blocks = quiz["options"].copy()
+            for i in range(len(st.session_state.user_order)):
+                st.session_state.user_order[i] = st.selectbox(
+                    f"⬜ 순서 {i+1}번", [""] + blocks, key=f"{q_idx}_blank_{i}"
+                )
+
             if st.button("✅ 제출"):
-                if user_order == quiz["answer"]:
+                if st.session_state.user_order == quiz["answer"]:
                     st.session_state.score += 1
                     st.session_state.feedback = "🎉 정답입니다! 🌟 잘했어요!"
                 else:
@@ -153,6 +165,7 @@ else:
             if st.button("👉 다음 문제로"):
                 st.session_state.current_q += 1
                 st.session_state.stage = 0
+                st.session_state.user_order = []
                 st.rerun()
         else:
             st.success(f"🎉 퀴즈 완료! 점수: {st.session_state.score} / {total}")
@@ -169,4 +182,5 @@ else:
                 st.session_state.score = 0
                 st.session_state.stage = 0
                 st.session_state.wrong_concepts = []
+                st.session_state.user_order = []
                 st.rerun()
