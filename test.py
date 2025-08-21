@@ -13,14 +13,12 @@ page_bg = """
     background-attachment: fixed;
     color: #1b1b1b;
 }
-
 .block-container {
     background-color: rgba(255, 255, 255, 0.9);
     padding: 2rem;
     border-radius: 20px;
     box-shadow: 0px 6px 20px rgba(0,0,0,0.3);
 }
-
 [data-testid="stSidebar"] {
     background: linear-gradient(180deg, #a5d6a7, #81c784, #4caf50);
     color: white;
@@ -28,7 +26,6 @@ page_bg = """
 [data-testid="stSidebar"] * {
     color: white !important;
 }
-
 div.stButton > button {
     background: linear-gradient(90deg, #66bb6a, #43a047);
     color: white;
@@ -87,6 +84,8 @@ if "stage" not in st.session_state:
     st.session_state.stage = 0
 if "wrong_concepts" not in st.session_state:
     st.session_state.wrong_concepts = []
+if "wrong_questions" not in st.session_state:
+    st.session_state.wrong_questions = []
 if "user_order" not in st.session_state:
     st.session_state.user_order = []
 
@@ -97,13 +96,14 @@ st.title("🧬 생명과학1 - 유전 퀴즈 대모험 🌱")
 
 # 퀴즈 시작 전
 if not st.session_state.quiz_list:
-    num_q = st.slider("📝 풀 문제 개수를 선택하세요:", 1, 30, 5)  # ✅ 30개까지 선택 가능
+    num_q = st.slider("📝 풀 문제 개수를 선택하세요:", 1, 30, 5)
     if st.button("🚀 퀴즈 시작!"):
-        st.session_state.quiz_list = random.sample(quiz_data, k=min(num_q, len(quiz_data)))  # 중복 없음
+        st.session_state.quiz_list = random.sample(quiz_data, k=min(num_q, len(quiz_data)))
         st.session_state.current_q = 0
         st.session_state.score = 0
         st.session_state.stage = 0
         st.session_state.wrong_concepts = []
+        st.session_state.wrong_questions = []
         st.session_state.user_order = []
         st.rerun()
 
@@ -117,9 +117,7 @@ else:
     st.markdown(f"### 🏆 문제 {q_idx+1} / {total}")
     st.write(quiz["question"])
 
-    # ----------------------
     # stage = 0 → 문제 풀이 화면
-    # ----------------------
     if st.session_state.stage == 0:
         if quiz["type"] == "mcq":
             user_answer = st.radio("👉 정답을 고르세요:", quiz["options"], key=f"q{q_idx}")
@@ -129,12 +127,12 @@ else:
                     st.session_state.feedback = "🎉 정답입니다! 🧬 훌륭해요!"
                 else:
                     st.session_state.wrong_concepts.append(quiz["concept"])
+                    st.session_state.wrong_questions.append(quiz)
                     st.session_state.feedback = f"❌ 틀렸습니다... 정답은 👉 {quiz['answer']}"
                 st.session_state.stage = 1
                 st.rerun()
 
         elif quiz["type"] == "order":
-            # 빈칸 + 블록 형태 구현
             if not st.session_state.user_order:
                 st.session_state.user_order = [""] * len(quiz["options"])
 
@@ -150,13 +148,12 @@ else:
                     st.session_state.feedback = "🎉 정답입니다! 🌟 잘했어요!"
                 else:
                     st.session_state.wrong_concepts.append(quiz["concept"])
+                    st.session_state.wrong_questions.append(quiz)
                     st.session_state.feedback = f"❌ 틀렸습니다... 정답은 👉 {' → '.join(quiz['answer'])}"
                 st.session_state.stage = 1
                 st.rerun()
 
-    # ----------------------
     # stage = 1 → 정오답 피드백 화면
-    # ----------------------
     elif st.session_state.stage == 1:
         st.subheader("📢 결과")
         st.info(st.session_state.feedback)
@@ -176,11 +173,25 @@ else:
             else:
                 st.balloons()
                 st.success("🌟 완벽합니다! 모든 개념을 잘 이해했군요!")
-            if st.button("🔄 다시 시작하기"):
+
+            # ❌ 틀린 문제 다시 풀기 버튼
+            if st.session_state.wrong_questions:
+                if st.button("🔄 틀린 문제 다시 풀기"):
+                    st.session_state.quiz_list = st.session_state.wrong_questions.copy()
+                    st.session_state.current_q = 0
+                    st.session_state.score = 0
+                    st.session_state.stage = 0
+                    st.session_state.user_order = []
+                    st.session_state.wrong_concepts = []
+                    st.session_state.wrong_questions = []
+                    st.rerun()
+
+            if st.button("🏠 처음으로 돌아가기"):
                 st.session_state.quiz_list = []
                 st.session_state.current_q = 0
                 st.session_state.score = 0
                 st.session_state.stage = 0
                 st.session_state.wrong_concepts = []
+                st.session_state.wrong_questions = []
                 st.session_state.user_order = []
                 st.rerun()
